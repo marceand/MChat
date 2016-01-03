@@ -1,0 +1,69 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:background="@color/primary"
+                tools:context="com.marceme.marcefirebasechat.ui.LogInActivity">
+
+
+    <!-- For the purpose of the app, many attributes are not refactored-->
+
+    <TextView
+        android:id="@+id/titleChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="M Chat"
+        android:textStyle="bold"
+        android:textColor="@color/text_color"
+        android:layout_gravity="center"
+        android:textSize="30sp"
+        android:layout_marginTop="@dimen/log_in_margin"/>
+
+    <EditText
+        android:inputType="textEmailAddress"
+        android:id="@+id/userEmailChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/text_color"
+        android:layout_marginLeft="@dimen/log_in_margin"
+        android:layout_marginRight="@dimen/log_in_margin"
+        android:layout_marginTop="40dp"
+        android:hint="email"/>
+
+    <EditText
+        android:id="@+id/passWordChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/text_color"
+        android:layout_marginLeft="@dimen/log_in_margin"
+        android:layout_marginRight="@dimen/log_in_margin"
+        android:hint="password"/>
+
+    <Button
+        android:id="@+id/btn_LogInChat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="LogIn"
+        android:background="@color/text_color"
+        android:textColor="@color/primary"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="@dimen/log_in_margin"
+        android:layout_marginRight="@dimen/log_in_margin"/>
+
+    <Button
+        android:id="@+id/registerUser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:textColor="@color/primary"
+        android:background="@color/text_color"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="@dimen/log_in_margin"
+        android:layout_marginRight="@dimen/log_in_margin"/>
+
+</LinearLayout>

@@ -1,0 +1,79 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@color/primary"
+                tools:context="com.marceme.marcefirebasechat.ui.RegisterActivity">
+
+    <!-- For the purpose of the app, many attributes are not refactored-->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="M Chat"
+        android:id="@+id/titleChat"
+        android:layout_gravity="center"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_color"
+        android:layout_marginTop="@dimen/log_in_margin"/>
+
+    <EditText
+        android:id="@+id/userFirstNameRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginLeft="@dimen/log_in_margin"
+        android:layout_marginRight="@dimen/log_in_margin"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/text_color"
+        android:hint="first name"/>
+
+    <EditText
+        android:id="@+id/userEmailRegister"
+        android:inputType="textEmailAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/log_in_margin"
+        android:layout_marginRight="@dimen/log_in_margin"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/text_color"
+        android:hint="email"/>
+
+    <EditText
+        android:id="@+id/passWordRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:layout_marginLeft="@dimen/log_in_margin"
+        android:layout_marginRight="@dimen/log_in_margin"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/text_color"
+        android:hint="password"/>
+
+    <Button
+        android:id="@+id/registerButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:background="@color/text_color"
+        android:layout_marginLeft="@dimen/log_in_margin"
+        android:textColor="@color/primary"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="@dimen/log_in_margin"/>
+
+    <Button
+        android:id="@+id/cancelRegisterButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:textColor="@color/primary"
+        android:background="@color/text_color"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="@dimen/log_in_margin"
+        android:layout_marginRight="@dimen/log_in_margin"/>
+
+
+</LinearLayout>
