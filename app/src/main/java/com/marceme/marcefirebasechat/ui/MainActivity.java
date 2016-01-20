@@ -202,6 +202,14 @@ public class MainActivity extends Activity {
                     String userUid = dataSnapshot.getKey();
                     if(!userUid.equals(mCurrentUserUid)) {
                         UsersChatModel user = dataSnapshot.getValue(UsersChatModel.class);
+
+                        // Removed bug here
+                        //Add recipient uid
+                        user.setRecipientUid(userUid);
+
+                        //Add current user (or sender) info
+                        user.setCurrentUserEmail(mCurrentUserEmail); //email
+                        user.setCurrentUserUid(mCurrentUserUid);//uid
                         int index = mUsersKeyList.indexOf(userUid);
                         Log.e(TAG, "change index "+index);
                         mUsersChatAdapter.changeUser(index, user);

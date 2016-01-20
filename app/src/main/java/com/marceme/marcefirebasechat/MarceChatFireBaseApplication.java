@@ -13,6 +13,5 @@ public class MarceChatFireBaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Firebase.setAndroidContext(this);
-
     }
 }

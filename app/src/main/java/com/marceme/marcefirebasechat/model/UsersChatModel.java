@@ -1,7 +1,9 @@
 package com.marceme.marcefirebasechat.model;
 
+import android.nfc.Tag;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 /**
  * Created by Marcel on 11/11/2015.
@@ -57,6 +59,7 @@ public class UsersChatModel implements Parcelable{
     }
 
     public String getUserEmail() {
+        //Log.e("user email  ", userEmail);
         return userEmail;
     }
 
@@ -106,6 +109,7 @@ public class UsersChatModel implements Parcelable{
     }
 
     public String getCurrentUserEmail() {
+        //Log.e("current user email  ", mCurrentUserEmail);
         return mCurrentUserEmail;
     }
 
@@ -192,3 +196,36 @@ public class UsersChatModel implements Parcelable{
         }
     };
 }
+
+//01-17 23:02:27.190 1944-1944/com.marceme.marcefirebasechat E/AndroidRuntime: FATAL EXCEPTION: main
+//        Process: com.marceme.marcefirebasechat, PID: 1944
+//        java.lang.RuntimeException: Unable to start activity ComponentInfo{com.marceme.marcefirebasechat/com.marceme.marcefirebasechat.ui.ChatActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.String java.lang.String.replace(java.lang.CharSequence, java.lang.CharSequence)' on a null object reference
+//        at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2298)
+//        at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2360)
+//        at android.app.ActivityThread.access$800(ActivityThread.java:144)
+//        at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1278)
+//        at android.os.Handler.dispatchMessage(Handler.java:102)
+//        at android.os.Looper.loop(Looper.java:135)
+//        at android.app.ActivityThread.main(ActivityThread.java:5221)
+//        at java.lang.reflect.Method.invoke(Native Method)
+//        at java.lang.reflect.Method.invoke(Method.java:372)
+//        at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:899)
+//        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:694)
+//        Caused by: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.String java.lang.String.replace(java.lang.CharSequence, java.lang.CharSequence)' on a null object reference
+//        at com.marceme.marcefirebasechat.model.UsersChatModel.cleanEmailAddress(UsersChatModel.java:150)
+//        at com.marceme.marcefirebasechat.model.UsersChatModel.createUniqueChatRef(UsersChatModel.java:131)
+//        at com.marceme.marcefirebasechat.model.UsersChatModel.getChatRef(UsersChatModel.java:123)
+//        at com.marceme.marcefirebasechat.ui.ChatActivity.onCreate(ChatActivity.java:83)
+//        at android.app.Activity.performCreate(Activity.java:5933)
+//        at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1105)
+//        at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2251)
+//        at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2360) 
+//        at android.app.ActivityThread.access$800(ActivityThread.java:144) 
+//        at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1278) 
+//        at android.os.Handler.dispatchMessage(Handler.java:102) 
+//        at android.os.Looper.loop(Looper.java:135) 
+//        at android.app.ActivityThread.main(ActivityThread.java:5221) 
+//        at java.lang.reflect.Method.invoke(Native Method) 
+//        at java.lang.reflect.Method.invoke(Method.java:372) 
+//        at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:899) 
+//        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:694) 
