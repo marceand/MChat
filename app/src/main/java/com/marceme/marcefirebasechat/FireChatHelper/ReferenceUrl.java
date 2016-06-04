@@ -5,7 +5,7 @@ package com.marceme.marcefirebasechat.FireChatHelper;
  */
 public class ReferenceUrl {
 
-    public static final String FIREBASE_CHAT_URL="https://brilliant-fire-8946.firebaseio.com/"; //Your app main firebase url
+    public static final String FIREBASE_CHAT_URL=""; //Your app main firebase url
     public static final String CHILD_USERS="users";
     public static final String CHILD_CHAT="chat";
     public static final String CHILD_CONNECTION="connection";
