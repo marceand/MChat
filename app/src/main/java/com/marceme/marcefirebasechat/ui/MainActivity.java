@@ -3,277 +3,120 @@ package com.marceme.marcefirebasechat.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.ProgressBar;
 
-import com.firebase.client.AuthData;
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
-import com.marceme.marcefirebasechat.FireChatHelper.ReferenceUrl;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.marceme.marcefirebasechat.R;
 import com.marceme.marcefirebasechat.adapter.UsersChatAdapter;
-import com.marceme.marcefirebasechat.model.UsersChatModel;
+import com.marceme.marcefirebasechat.login.LogInActivity;
+import com.marceme.marcefirebasechat.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 
 /*
 * CAUTION: This app is still far away from a production app
 * Note: (1) Still fixing some code, and functionality and
 *       I don't use FirebaseUI, but recommend you to use it.
-*       (2) remember to add your own firabse url in ReferenceUrl.java
 * */
 
 public class MainActivity extends Activity {
 
 
-    //https://github.com/sinch/android-messaging-tutorial
-    //http://stackoverflow.com/questions/32151178/how-do-you-include-a-username-when-storing-email-and-password-using-firebase-ba
+    private static String TAG =  MainActivity.class.getSimpleName();
 
-    /*
-    * Question: how to query all users except the current user
-    * http://stackoverflow.com/questions/25236576/firebase-displaying-other-users-username-except-yours-using-presence
-    *
-    * https://www.airpair.com/angularjs/posts/build-a-real-time-hybrid-app-with-ionic-firebase
-    * */
+    @BindView(R.id.progress_bar_users) ProgressBar mProgressBarForUsers;
+    @BindView(R.id.recycler_view_users) RecyclerView mUsersRecyclerView;
 
-    private static final String TAG=MainActivity.class.getSimpleName();
-
-    /* Reference to firebase */
-    private Firebase mFirebaseChatRef;
-
-    /* Reference to users in firebase */
-    private Firebase mFireChatUsersRef;
-
-    /* Updating connection status */
-    Firebase myConnectionsStatusRef;
-
-    /* Listener for Firebase session changes */
-    private Firebase.AuthStateListener mAuthStateListener;
-
-    /* Data from the authenticated user */
-    private AuthData mAuthData;
-
-    /* recyclerView for mchat users */
-    private RecyclerView mUsersFireChatRecyclerView;
-
-    /* progress bar */
-    private View mProgressBarForUsers;
-
-    /* fire chat adapter */
-    private UsersChatAdapter mUsersChatAdapter;
-
-    /* current user uid */
     private String mCurrentUserUid;
-
-    /* current user email */
-    private String mCurrentUserEmail;
-
-    /* Listen to users change in firebase-remember to detach it */
-    private ChildEventListener mListenerUsers;
-
-    /* Listen for user presence */
-    private ValueEventListener mConnectedListener;
-
-    /* List holding user key */
     private List<String>  mUsersKeyList;
+
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private DatabaseReference mUserRefDatabase;
+    private ChildEventListener mChildEventListener;
+    private UsersChatAdapter mUsersChatAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize firebase
-        mFirebaseChatRef=new Firebase(ReferenceUrl.FIREBASE_CHAT_URL); // Get app main firebase url
+        bindButterKnife();
+        setAuthInstance();
+        setUsersDatabase();
+        setUserRecyclerView();
+        setUsersKeyList();
+        setAuthListener();
+    }
 
-        // Get a reference to users child in firebase
-        mFireChatUsersRef=new Firebase(ReferenceUrl.FIREBASE_CHAT_URL).child(ReferenceUrl.CHILD_USERS);
+    private void bindButterKnife() {
+        ButterKnife.bind(this);
+    }
 
-        // Get a reference to recyclerView
-        mUsersFireChatRecyclerView=(RecyclerView)findViewById(R.id.usersFireChatRecyclerView);
+    private void setAuthInstance() {
+        mAuth = FirebaseAuth.getInstance();
+    }
 
-        // Get a reference to progress bar
-        mProgressBarForUsers=findViewById(R.id.progress_bar_users);
+    private void setUsersDatabase() {
+        mUserRefDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+    }
+    private void setUserRecyclerView() {
+        mUsersChatAdapter = new UsersChatAdapter(this, new ArrayList<User>());
+        mUsersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mUsersRecyclerView.setHasFixedSize(true);
+        mUsersRecyclerView.setAdapter(mUsersChatAdapter);
+    }
 
-        // Initialize adapter
-        List<UsersChatModel> emptyListChat=new ArrayList<UsersChatModel>();
-        mUsersChatAdapter =new UsersChatAdapter(this,emptyListChat);
+    private void setUsersKeyList() {
+        mUsersKeyList = new ArrayList<String>();
+    }
 
-        // Set adapter to recyclerView
-        mUsersFireChatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mUsersFireChatRecyclerView.setHasFixedSize(true);
-        mUsersFireChatRecyclerView.setAdapter(mUsersChatAdapter);
-
-        // Initialize keys list
-        mUsersKeyList=new ArrayList<String>();
-
-        // Listen for changes in the authentication state
-        // Because probably token expire after 24hrs or
-        // user log out
-        mAuthStateListener=new Firebase.AuthStateListener() {
+    private void setAuthListener() {
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
-            public void onAuthStateChanged(AuthData authData) {
-                setAuthenticatedUser(authData);
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+
+                hideProgressBarForUsers();
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                if (user != null) {
+                    setUserData(user);
+                    queryAllUsers();
+                } else {
+                    // User is signed out
+                    goToLogin();
+                }
             }
         };
-
-        // Register the authentication state listener
-        mFirebaseChatRef.addAuthStateListener(mAuthStateListener);
-
     }
 
-    private void setAuthenticatedUser(AuthData authData) {
-        mAuthData=authData;
-        if (authData != null) {
-
-            /* User auth has not expire yet */
-
-            // Get unique current user ID
-            mCurrentUserUid=authData.getUid();
-
-            // Get current user email
-            mCurrentUserEmail= (String) authData.getProviderData().get(ReferenceUrl.KEY_EMAIL);
-
-            // Query all mChat user except current user
-            queryFireChatUsers();
-
-
-        } else {
-            // Token expires or user log out
-            // So show logIn screen to reinitiate the token
-            navigateToLogin();
-        }
+    private void setUserData(FirebaseUser user) {
+        mCurrentUserUid = user.getUid();
     }
 
-    private void queryFireChatUsers() {
-
-        //Show progress bar
-        showProgressBarForUsers();
-
-        mListenerUsers=mFireChatUsersRef.limitToFirst(50).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                //Log.e(TAG, "inside onChildAdded");
-                //Hide progress bar
-                hideProgressBarForUsers();
-
-                if(dataSnapshot.exists()){
-                    //Log.e(TAG, "A new user was inserted");
-
-                    String userUid=dataSnapshot.getKey();
-
-                    if(!userUid.equals(mCurrentUserUid)) {
-
-                        //Get recipient user name
-                        UsersChatModel user = dataSnapshot.getValue(UsersChatModel.class);
-
-                        //Add recipient uid
-                        user.setRecipientUid(userUid);
-
-                        //Add current user (or sender) info
-                        user.setCurrentUserEmail(mCurrentUserEmail); //email
-                        user.setCurrentUserUid(mCurrentUserUid);//uid
-                        mUsersKeyList.add(userUid);
-                        mUsersChatAdapter.refill(user);
-
-                    }else{
-                        UsersChatModel currentUser = dataSnapshot.getValue(UsersChatModel.class);
-                        String userName=currentUser.getFirstName(); //Get current user first name
-                        String createdAt=currentUser.getCreatedAt(); //Get current user date creation
-                        mUsersChatAdapter.setNameAndCreatedAt(userName, createdAt); //Add it the adapter
-                    }
-                }
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                if(dataSnapshot.exists()) {
-                    String userUid = dataSnapshot.getKey();
-                    if(!userUid.equals(mCurrentUserUid)) {
-                        UsersChatModel user = dataSnapshot.getValue(UsersChatModel.class);
-
-                        // Removed bug here
-                        //Add recipient uid
-                        user.setRecipientUid(userUid);
-
-                        //Add current user (or sender) info
-                        user.setCurrentUserEmail(mCurrentUserEmail); //email
-                        user.setCurrentUserUid(mCurrentUserUid);//uid
-                        int index = mUsersKeyList.indexOf(userUid);
-                        Log.e(TAG, "change index "+index);
-                        mUsersChatAdapter.changeUser(index, user);
-                    }
-
-                }
-
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-
-        // // Store current user status as online
-        myConnectionsStatusRef= mFireChatUsersRef.child(mCurrentUserUid).child(ReferenceUrl.CHILD_CONNECTION);
-
-        // Indication of connection status
-        mConnectedListener = mFirebaseChatRef.getRoot().child(".info/connected").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                boolean connected = (Boolean) dataSnapshot.getValue();
-                if (connected) {
-
-                    myConnectionsStatusRef.setValue(ReferenceUrl.KEY_ONLINE);
-
-                    // When this device disconnects, remove it
-                    myConnectionsStatusRef.onDisconnect().setValue(ReferenceUrl.KEY_OFFLINE);
-                    Toast.makeText(MainActivity.this, "Connected to Firebase", Toast.LENGTH_SHORT).show();
-
-                } else {
-
-                    Toast.makeText(MainActivity.this, "Disconnected from Firebase", Toast.LENGTH_SHORT).show();
-
-                }
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-
+    private void queryAllUsers() {
+        mChildEventListener = getChildEventListener();
+        mUserRefDatabase.limitToFirst(50).addChildEventListener(mChildEventListener);
     }
 
-    private void navigateToLogin() {
-
-        // Go to LogIn screen
+    private void goToLogin() {
         Intent intent = new Intent(this, LogInActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // LoginActivity is a New Task
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK); // The old task when coming back to this activity should be cleared so we cannot come back to it.
@@ -281,62 +124,43 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
-        //int size=mUsersKeyList.size();
-        //Log.e(TAG, " size"+size);
-    }
-
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //Log.e(TAG, "I am onPause");
+    public void onStart() {
+        super.onStart();
+        showProgressBarForUsers();
+        mAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
-        //Log.e(TAG, "I am onStop");
+
+        clearCurrentUsers();
+
+        if (mChildEventListener != null) {
+            mUserRefDatabase.removeEventListener(mChildEventListener);
+        }
+
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        //Log.e(TAG, "I am onDestroy");
-
-        // If changing configurations, stop tracking firebase session.
-        mFirebaseChatRef.removeAuthStateListener(mAuthStateListener);
-
+    private void clearCurrentUsers() {
+        mUsersChatAdapter.clear();
         mUsersKeyList.clear();
-
-        // Stop all listeners
-        // Make sure to check if they have been initialized
-        if(mListenerUsers!=null) {
-            mFireChatUsersRef.removeEventListener(mListenerUsers);
-        }
-        if(mConnectedListener!=null) {
-            mFirebaseChatRef.getRoot().child(".info/connected").removeEventListener(mConnectedListener);
-        }
     }
-
 
     private void logout() {
+        showProgressBarForUsers();
+        setUserOffline();
+        mAuth.signOut();
+    }
 
-        if (this.mAuthData != null) {
-
-            /* Logout of mChat */
-
-            // Store current user status as offline
-            myConnectionsStatusRef.setValue(ReferenceUrl.KEY_OFFLINE);
-
-            // Finish token
-            mFirebaseChatRef.unauth();
-
-            /* Update authenticated user and show login screen */
-            setAuthenticatedUser(null);
+    private void setUserOffline() {
+        if(mAuth.getCurrentUser()!=null ) {
+            String userId = mAuth.getCurrentUser().getUid();
+            mUserRefDatabase.child(userId).child("connection").setValue(UsersChatAdapter.OFFLINE);
         }
     }
 
@@ -357,17 +181,70 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-
-    /*Show and hide progress bar*/
     private void showProgressBarForUsers(){
         mProgressBarForUsers.setVisibility(View.VISIBLE);
     }
-
 
     private void hideProgressBarForUsers(){
         if(mProgressBarForUsers.getVisibility()==View.VISIBLE) {
             mProgressBarForUsers.setVisibility(View.GONE);
         }
+    }
+
+    private ChildEventListener getChildEventListener() {
+        return new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                if(dataSnapshot.exists()){
+
+                    String userUid = dataSnapshot.getKey();
+
+                    if(dataSnapshot.getKey().equals(mCurrentUserUid)){
+                        User currentUser = dataSnapshot.getValue(User.class);
+                        mUsersChatAdapter.setCurrentUserInfo(userUid, currentUser.getEmail(), currentUser.getCreatedAt());
+                    }else {
+                        User recipient = dataSnapshot.getValue(User.class);
+                        recipient.setRecipientId(userUid);
+                        mUsersKeyList.add(userUid);
+                        mUsersChatAdapter.refill(recipient);
+                    }
+                }
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                if(dataSnapshot.exists()) {
+                    String userUid = dataSnapshot.getKey();
+                    if(!userUid.equals(mCurrentUserUid)) {
+
+                        User user = dataSnapshot.getValue(User.class);
+
+                        int index = mUsersKeyList.indexOf(userUid);
+                        if(index > -1) {
+                            mUsersChatAdapter.changeUser(index, user);
+                        }
+                    }
+
+                }
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
     }
 
 }

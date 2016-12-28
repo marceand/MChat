@@ -2,17 +2,21 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context=".MainActivity">
+                tools:context=".ui.MainActivity">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/usersFireChatRecyclerView"
+        android:id="@+id/recycler_view_users"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
     <ProgressBar
         android:id="@+id/progress_bar_users"
+        style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:visibility="gone"/>
+
+
 </RelativeLayout>

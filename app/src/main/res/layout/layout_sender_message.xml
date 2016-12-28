@@ -4,18 +4,20 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
     <TextView
-        android:id="@+id/recipientMessage"
+        android:id="@+id/text_view_sender_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Hi. How are you?"
+        tools:text="I am doing ok"
         android:padding="8dp"
-        android:textStyle="bold"
-        android:layout_marginRight="60dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="2dp"
-        android:textColor="#727272"
+        android:textStyle="bold"
         android:textSize="14sp"
-        android:background="@drawable/recipient_rounded_corners"/>
+        android:textColor="#FFFFFF"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/sender_rounded_corners"/>
 
 </RelativeLayout>

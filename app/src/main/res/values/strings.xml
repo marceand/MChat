@@ -13,5 +13,6 @@
     <string name="title_activity_chat">Chat</string>
 
     <!-- RegisterActivity-->
-    <string name="register_error_message">Please make sure you enter first name, email and password!</string>
+    <string name="error_fields_empty">Please make sure you enter display name, email and password!</string>
+    <string name="error_incorrect_email_pass">Provide correct email and password with more than 6 characters.</string>
 </resources>

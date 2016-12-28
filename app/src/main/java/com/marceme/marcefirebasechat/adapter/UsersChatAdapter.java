@@ -13,9 +13,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.marceme.marcefirebasechat.FireChatHelper.ChatHelper;
-import com.marceme.marcefirebasechat.FireChatHelper.ReferenceUrl;
+import com.marceme.marcefirebasechat.FireChatHelper.ExtraIntent;
 import com.marceme.marcefirebasechat.R;
-import com.marceme.marcefirebasechat.model.UsersChatModel;
+import com.marceme.marcefirebasechat.model.User;
 import com.marceme.marcefirebasechat.ui.ChatActivity;
 
 import java.util.List;
@@ -25,40 +25,42 @@ import java.util.List;
  */
 public class UsersChatAdapter extends RecyclerView.Adapter<UsersChatAdapter.ViewHolderUsers> {
 
-    private List<UsersChatModel> mFireChatUsers;
+    public static final String ONLINE = "online";
+    public static final String OFFLINE = "offline";
+    private List<User> mUsers;
     private Context mContext;
-    private String mCurrentUserName;
-    private String mCurrentUserCreatedAt;
+    private String mCurrentUserEmail;
+    private Long mCurrentUserCreatedAt;
+    private String mCurrentUserId;
 
-    public UsersChatAdapter(Context context, List<UsersChatModel> fireChatUsers) {
-        mFireChatUsers=fireChatUsers;
-        mContext=context;
+    public UsersChatAdapter(Context context, List<User> fireChatUsers) {
+        mUsers = fireChatUsers;
+        mContext = context;
     }
 
     @Override
     public ViewHolderUsers onCreateViewHolder(ViewGroup parent, int viewType) {
-        // Inflate layout for each row
         return new ViewHolderUsers(mContext,LayoutInflater.from(parent.getContext()).inflate(R.layout.user_profile, parent, false));
     }
 
     @Override
     public void onBindViewHolder(ViewHolderUsers holder, int position) {
 
-        UsersChatModel fireChatUser=mFireChatUsers.get(position);
+        User fireChatUser = mUsers.get(position);
 
         // Set avatar
         int userAvatarId= ChatHelper.getDrawableAvatarId(fireChatUser.getAvatarId());
-        Drawable  avatarDrawable= ContextCompat.getDrawable(mContext,userAvatarId);
-        holder.getUserPhoto().setImageDrawable(avatarDrawable);
+        Drawable  avatarDrawable = ContextCompat.getDrawable(mContext,userAvatarId);
+        holder.getUserAvatar().setImageDrawable(avatarDrawable);
 
-        // Set username
-        holder.getUserFirstName().setText(fireChatUser.getFirstName());
+        // Set display name
+        holder.getUserDisplayName().setText(fireChatUser.getDisplayName());
 
         // Set presence status
         holder.getStatusConnection().setText(fireChatUser.getConnection());
 
         // Set presence text color
-        if(fireChatUser.getConnection().equals(ReferenceUrl.KEY_ONLINE)) {
+        if(fireChatUser.getConnection().equals(ONLINE)) {
             // Green color
             holder.getStatusConnection().setTextColor(Color.parseColor("#00FF00"));
         }else {
@@ -70,57 +72,54 @@ public class UsersChatAdapter extends RecyclerView.Adapter<UsersChatAdapter.View
 
     @Override
     public int getItemCount() {
-        return mFireChatUsers.size();
+        return mUsers.size();
     }
 
-    public void refill(UsersChatModel users) {
-
-        // Add each user and notify recyclerView about change
-        mFireChatUsers.add(users);
+    public void refill(User users) {
+        mUsers.add(users);
         notifyDataSetChanged();
     }
 
-    public void setNameAndCreatedAt(String userName, String createdAt) {
-
-        // Set current user name and time account created at
-        mCurrentUserName=userName;
-        mCurrentUserCreatedAt=createdAt;
-    }
-
-    public void changeUser(int index, UsersChatModel user) {
-
-        // Handle change on each user and notify change
-        mFireChatUsers.set(index,user);
+    public void changeUser(int index, User user) {
+        mUsers.set(index,user);
         notifyDataSetChanged();
     }
 
+    public void setCurrentUserInfo(String userUid, String email, long createdAt) {
+        mCurrentUserId = userUid;
+        mCurrentUserEmail = email;
+        mCurrentUserCreatedAt = createdAt;
+    }
+
+    public void clear() {
+        mUsers.clear();
+    }
 
 
     /* ViewHolder for RecyclerView */
     public class ViewHolderUsers extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        private ImageView mUserPhoto; // User avatar
-        private TextView mUserFirstName; // User first name
-        private TextView mStatusConnection; // User presence
+        private ImageView mUserAvatar;
+        private TextView mUserDisplayName;
+        private TextView mStatusConnection;
         private Context mContextViewHolder;
 
         public ViewHolderUsers(Context context, View itemView) {
             super(itemView);
-            mUserPhoto=(ImageView)itemView.findViewById(R.id.userPhotoProfile);
-            mUserFirstName=(TextView)itemView.findViewById(R.id.userFirstNameProfile);
-            mStatusConnection=(TextView)itemView.findViewById(R.id.connectionStatus);
-            mContextViewHolder=context;
+            mUserAvatar = (ImageView)itemView.findViewById(R.id.img_avatar);
+            mUserDisplayName = (TextView)itemView.findViewById(R.id.text_view_display_name);
+            mStatusConnection = (TextView)itemView.findViewById(R.id.text_view_connection_status);
+            mContextViewHolder = context;
 
-            // Attach a click listener to the entire row view
             itemView.setOnClickListener(this);
         }
 
-        public ImageView getUserPhoto() {
-            return mUserPhoto;
+        public ImageView getUserAvatar() {
+            return mUserAvatar;
         }
 
-        public TextView getUserFirstName() {
-            return mUserFirstName;
+        public TextView getUserDisplayName() {
+            return mUserDisplayName;
         }
         public TextView getStatusConnection() {
             return mStatusConnection;
@@ -130,21 +129,14 @@ public class UsersChatAdapter extends RecyclerView.Adapter<UsersChatAdapter.View
         @Override
         public void onClick(View view) {
 
-            // Handle click on each row
+            User user = mUsers.get(getLayoutPosition());
 
-            int position=getLayoutPosition(); // Get row position
+            String chatRef = user.createUniqueChatRef(mCurrentUserCreatedAt,mCurrentUserEmail);
 
-            UsersChatModel user=mFireChatUsers.get(position); // Get use object
-
-            // Provide current user username and time created at
-            user.setCurrentUserName(mCurrentUserName);
-            user.setCurrentUserCreatedAt(mCurrentUserCreatedAt);
-
-            // Create a chat activity
-            Intent chatIntent=new Intent(mContextViewHolder, ChatActivity.class);
-
-            // Attach data to activity as a parcelable object
-            chatIntent.putExtra(ReferenceUrl.KEY_PASS_USERS_INFO,user);
+            Intent chatIntent = new Intent(mContextViewHolder, ChatActivity.class);
+            chatIntent.putExtra(ExtraIntent.EXTRA_CURRENT_USER_ID, mCurrentUserId);
+            chatIntent.putExtra(ExtraIntent.EXTRA_RECIPIENT_ID, user.getRecipientId());
+            chatIntent.putExtra(ExtraIntent.EXTRA_CHAT_REF, chatRef);
 
             // Start new activity
             mContextViewHolder.startActivity(chatIntent);

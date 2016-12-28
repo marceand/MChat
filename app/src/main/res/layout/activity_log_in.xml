@@ -4,7 +4,7 @@
                 android:layout_height="match_parent"
               android:orientation="vertical"
               android:background="@color/primary"
-                tools:context="com.marceme.marcefirebasechat.ui.LogInActivity">
+                tools:context="com.marceme.marcefirebasechat.login.LogInActivity">
 
 
     <!-- For the purpose of the app, many attributes are not refactored-->
@@ -21,8 +21,8 @@
         android:layout_marginTop="@dimen/log_in_margin"/>
 
     <EditText
+        android:id="@+id/edit_text_email_login"
         android:inputType="textEmailAddress"
-        android:id="@+id/userEmailChat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/text_color"
@@ -33,7 +33,7 @@
         android:hint="email"/>
 
     <EditText
-        android:id="@+id/passWordChat"
+        android:id="@+id/edit_text_password_log_in"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPassword"
@@ -45,7 +45,7 @@
         android:hint="password"/>
 
     <Button
-        android:id="@+id/btn_LogInChat"
+        android:id="@+id/btn_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="LogIn"
@@ -56,7 +56,7 @@
         android:layout_marginRight="@dimen/log_in_margin"/>
 
     <Button
-        android:id="@+id/registerUser"
+        android:id="@+id/btn_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Register"

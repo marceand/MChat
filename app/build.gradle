@@ -2,13 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
 
-    packagingOptions {
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE-FIREBASE.txt'
-        exclude 'META-INF/NOTICE'
-    }
-
-
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
 
@@ -28,8 +21,16 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.firebase:firebase-client-android:2.4.0+'
     compile 'com.android.support:recyclerview-v7:23.+'
     compile 'de.hdodenhof:circleimageview:2.0.0'
+
+    compile 'com.google.firebase:firebase-database:10.0.1'
+    compile 'com.google.firebase:firebase-auth:10.0.1'
+    
+    compile 'com.jakewharton:butterknife:8.4.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
 }
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.jakewharton.butterknife'
+
+

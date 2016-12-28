@@ -1,37 +1,32 @@
 package com.marceme.marcefirebasechat.model;
 
+import com.google.firebase.database.Exclude;
+
 /**
  * Created by Marcel on 11/7/2015.
  */
-public class MessageChatModel {
+public class ChatMessage {
 
     private String message;
-    private String recipient;
     private String sender;
+    private String recipient;
 
     private int mRecipientOrSenderStatus;
 
-
-    /* Setter */
-
-    public void setMessage(String message) {
-        this.message = message;
+    public ChatMessage() {
     }
+
+    public ChatMessage(String message, String sender, String recipient) {
+        this.message = message;
+        this.recipient = recipient;
+        this.sender = sender;
+    }
+
 
     public void setRecipientOrSenderStatus(int recipientOrSenderStatus) {
         this.mRecipientOrSenderStatus = recipientOrSenderStatus;
     }
 
-    public void setRecipient(String givenRecipient){
-        recipient=givenRecipient;
-    }
-
-    public void setSender(String givenSender){
-        sender=givenSender;
-    }
-
-
-    /* Getter */
 
     public String getMessage() {
         return message;
@@ -45,6 +40,7 @@ public class MessageChatModel {
         return sender;
     }
 
+    @Exclude
     public int getRecipientOrSenderStatus() {
         return mRecipientOrSenderStatus;
     }

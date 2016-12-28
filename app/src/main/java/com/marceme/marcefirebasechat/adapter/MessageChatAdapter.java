@@ -1,14 +1,13 @@
 package com.marceme.marcefirebasechat.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.marceme.marcefirebasechat.R;
-import com.marceme.marcefirebasechat.model.MessageChatModel;
+import com.marceme.marcefirebasechat.model.ChatMessage;
 
 import java.util.List;
 
@@ -17,18 +16,17 @@ import java.util.List;
  */
 public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
-    private List<MessageChatModel> mListOfFireChat;
-    private static final int SENDER=0;
-    private static final int RECIPIENT=1;
+    private List<ChatMessage> mChatList;
+    public static final int SENDER = 0;
+    public static final int RECIPIENT = 1;
 
-    public MessageChatAdapter(List<MessageChatModel> listOfFireChats) {
-        mListOfFireChat=listOfFireChats;
+    public MessageChatAdapter(List<ChatMessage> listOfFireChats) {
+        mChatList = listOfFireChats;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if(mListOfFireChat.get(position).getRecipientOrSenderStatus()==SENDER){
-            Log.e("Adapter", " sender");
+        if(mChatList.get(position).getRecipientOrSenderStatus()==SENDER){
             return SENDER;
         }else {
             return RECIPIENT;
@@ -42,15 +40,15 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         switch (viewType) {
             case SENDER:
-                View viewSender = inflater.inflate(R.layout.sender_message, viewGroup, false);
+                View viewSender = inflater.inflate(R.layout.layout_sender_message, viewGroup, false);
                 viewHolder= new ViewHolderSender(viewSender);
                 break;
             case RECIPIENT:
-                View viewRecipient = inflater.inflate(R.layout.recipient_message, viewGroup, false);
+                View viewRecipient = inflater.inflate(R.layout.layout_recipient_message, viewGroup, false);
                 viewHolder=new ViewHolderRecipient(viewRecipient);
                 break;
             default:
-                View viewSenderDefault = inflater.inflate(R.layout.sender_message, viewGroup, false);
+                View viewSenderDefault = inflater.inflate(R.layout.layout_sender_message, viewGroup, false);
                 viewHolder= new ViewHolderSender(viewSenderDefault);
                 break;
         }
@@ -75,41 +73,33 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     private void configureSenderView(ViewHolderSender viewHolderSender, int position) {
-        MessageChatModel senderFireMessage=mListOfFireChat.get(position);
+        ChatMessage senderFireMessage= mChatList.get(position);
         viewHolderSender.getSenderMessageTextView().setText(senderFireMessage.getMessage());
     }
 
     private void configureRecipientView(ViewHolderRecipient viewHolderRecipient, int position) {
-        MessageChatModel recipientFireMessage=mListOfFireChat.get(position);
+        ChatMessage recipientFireMessage = mChatList.get(position);
         viewHolderRecipient.getRecipientMessageTextView().setText(recipientFireMessage.getMessage());
     }
 
     @Override
     public int getItemCount() {
-        return mListOfFireChat.size();
+        return mChatList.size();
     }
 
 
-    public void refillAdapter(MessageChatModel newFireChatMessage){
+    public void refillAdapter(ChatMessage newFireChatMessage){
 
         /*add new message chat to list*/
-        mListOfFireChat.add(newFireChatMessage);
+        mChatList.add(newFireChatMessage);
 
         /*refresh view*/
         notifyItemInserted(getItemCount()-1);
     }
 
-    public void refillFirsTimeAdapter(List<MessageChatModel> newFireChatMessage){
-
-        /*add new message chat to list*/
-        mListOfFireChat.clear();
-        mListOfFireChat.addAll(newFireChatMessage);
-        /*refresh view*/
-        notifyItemInserted(getItemCount()-1);
-    }
 
     public void cleanUp() {
-        mListOfFireChat.clear();
+        mChatList.clear();
     }
 
 
@@ -123,16 +113,13 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         public ViewHolderSender(View itemView) {
             super(itemView);
-            mSenderMessageTextView=(TextView)itemView.findViewById(R.id.senderMessage);
+            mSenderMessageTextView =(TextView)itemView.findViewById(R.id.text_view_sender_message);
         }
 
         public TextView getSenderMessageTextView() {
             return mSenderMessageTextView;
         }
 
-        public void setSenderMessageTextView(TextView senderMessage) {
-            mSenderMessageTextView = senderMessage;
-        }
     }
 
 
@@ -143,15 +130,12 @@ public class MessageChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         public ViewHolderRecipient(View itemView) {
             super(itemView);
-            mRecipientMessageTextView=(TextView)itemView.findViewById(R.id.recipientMessage);
+            mRecipientMessageTextView=(TextView)itemView.findViewById(R.id.text_view_recipient_message);
         }
 
         public TextView getRecipientMessageTextView() {
             return mRecipientMessageTextView;
         }
 
-        public void setRecipientMessageTextView(TextView recipientMessage) {
-            mRecipientMessageTextView = recipientMessage;
-        }
     }
 }
